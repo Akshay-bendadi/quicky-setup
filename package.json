@@ -1,0 +1,54 @@
+{
+  "name": "quicky-setup",
+  "version": "1.0.0",
+  "description": "Quickly set up a React/Next.js project with Tailwind, Redux, Axios, Auth, ESLint, and Theme Switch.",
+  "bin": {
+    "quicky-setup": "./dist/bin/quicky-setup.js"
+  },
+  "type": "module",
+  "keywords": [
+    "react",
+    "nextjs",
+    "boilerplate",
+    "tailwind",
+    "redux",
+    "eslint",
+    "axios",
+    "theme",
+    "cli",
+    "scaffold"
+  ],
+  "author": "Akshay Bendadi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/quicky-setup.git"
+  },
+  "homepage": "https://github.com/your-org/quicky-setup#readme",
+  "bugs": {
+    "url": "https://github.com/your-org/quicky-setup/issues"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "execa": "^9.0.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.8",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "clean": "if exist dist rmdir /s /q dist",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "node ./dist/bin/quicky-setup.js",
+    "dev": "npm run clean && npm run build && npm start"
+  },
+  "files": [
+    "dist/"
+  ]
+}
