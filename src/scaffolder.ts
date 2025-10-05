@@ -14,7 +14,7 @@ function createFolders(projectPath: string, framework: Answers["framework"]): vo
     "public",
   ];
 
-  if (framework === "next") { 
+  if (framework === "next") {
     // For Next.js, only create folders that don't conflict with app directory structure
     folders.push(
       "components",
@@ -22,8 +22,7 @@ function createFolders(projectPath: string, framework: Answers["framework"]): vo
       "lib",
       "styles",
       "types",
-      "store",
-      "services",
+      "services"
     );
   } else if (framework === "react") {
     // For React (Vite/React), use src/ structure
@@ -32,7 +31,6 @@ function createFolders(projectPath: string, framework: Answers["framework"]): vo
       "src/hooks",
       "src/layouts",
       "src/services",
-      "src/store",
       "src/styles",
       "src/utils",
       "src/pages",
@@ -45,7 +43,6 @@ function createFolders(projectPath: string, framework: Answers["framework"]): vo
       "src/hooks",
       "src/layouts",
       "src/services",
-      "src/store",
       "src/styles",
       "src/utils"
     );
@@ -64,8 +61,8 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
   console.log("🚀 Creating base project...");
 
   // 1. Initialize base project first
-  if (answers.framework === "next") { 
-     
+  if (answers.framework === "next") {
+
     // Install specific stable version of Next.js
     const nextVersion = "14.2.3";
     const args = [
@@ -78,16 +75,16 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
       "--tailwind",
       "--no-src-dir",
       "--no-https",
-      "--turbo" 
+      "--turbo"
     ];
-    
+
     // Add React and React DOM dependencies with compatible versions
     const dependencies = {
       "next": `^${nextVersion}`,
       "react": "^18.2.0",
       "react-dom": "^18.2.0"
     };
-    
+
     args.push(answers.language === "ts" ? "--typescript" : "--js");
 
     if (answers.routing === "app") {
@@ -95,18 +92,25 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
     } else {
       args.push("--no-app");
     }
-    
-    await execa("npx", ["--yes", ...args], { stdio: "inherit" });
-    
+
+    await execa("npx", ["--yes", ...args], {
+      stdio: "inherit",
+      env: {
+        ...process.env,
+        NEXT_TELEMETRY_DISABLED: "1",  // Disable telemetry
+        NEXT_DISABLE_CREATE_NEXT_APP_UPDATE_NOTIFICATION: "1"  // Disable update notification
+      }
+    });
+
     const packageJsonPath = path.join(projectPath, "package.json");
     if (fs.existsSync(packageJsonPath)) {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
-      
+
       packageJson.dependencies = {
         ...packageJson.dependencies,
         ...dependencies
       };
-      
+
       packageJson.devDependencies = {
         ...packageJson.devDependencies,
         "@types/node": "^20.11.0",
@@ -119,14 +123,14 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
         "tailwindcss": "^3.4.0",
         "typescript": "^5.0.0"
       };
-      
+
       packageJson.scripts = packageJson.scripts || {};
       packageJson.scripts["dev"] = "next dev --turbo";
       packageJson.scripts["build"] = "next build";
       packageJson.scripts["start"] = "next start";
       packageJson.scripts["lint"] = "next lint";
       packageJson.scripts["dev:turbo"] = "next dev --turbo";
-      
+
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
     }
   } else {
@@ -141,8 +145,8 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
       { stdio: "inherit" }
     );
 
-    await execa("npm", ["install", "react-router-dom"], { stdio: "inherit" }); 
-    
+    await execa("npm", ["install", "react-router-dom"], { stdio: "inherit" });
+
     console.log("🎨 Installing Tailwind CSS...");
     await execa("npm", ["install", "-D", "tailwindcss@latest", "postcss@latest", "autoprefixer@latest"], {
       stdio: "inherit"
@@ -193,48 +197,38 @@ export default defineConfig({
     console.log("✅ Tailwind CSS installed and configured!");
   }
 
+
   console.log("✅ Base project created!");
 
   // 2. Now create our directory structure
   console.log("📂 Setting up project structure...");
   createFolders(projectPath, answers.framework);
   console.log("✅ Directory structure created");
+  // Setup environment files
+  console.log("🔧 Setting up environment files...");
+  try {
+    const { setupEnvFiles } = await import('./env-setup.js');
+    await setupEnvFiles({
+      framework: answers.framework,
+      projectPath
+    });
+  } catch (error) {
+    console.warn("⚠️  Could not set up environment files:", error);
+  }
 
-  // 3. Install and set up Redux if needed
-  if (answers.redux) {
-    console.log("⚡ Setting up Redux...");
-    
-    try {
-      // Install required dependencies
-      await execa("npm", ["install", "@reduxjs/toolkit", "react-redux"], { 
-        stdio: "inherit",
-        cwd: projectPath
-      });
-
-      // Install TypeScript types if using TypeScript
-      if (answers.language === 'ts') {
-        await execa("npm", ["install", "--save-dev", "@types/react-redux"], { 
-          stdio: "inherit",
-          cwd: projectPath
-        });
+  // Update jsconfig.json with proper configuration
+  const jsConfigPath = path.join(projectPath, 'jsconfig.json');
+  if (fs.existsSync(jsConfigPath)) {
+    const jsConfig = {
+      compilerOptions: {
+        baseUrl: ".",
+        paths: {
+          "@/*": ["./*"]
+        }
       }
-      
-      // Import the addRedux function using dynamic import
-      const { addRedux } = await import('./add-redux.js');
-      
-      // Call the addRedux function with the project options
-      await addRedux({
-        framework: answers.framework as 'react' | 'next',
-        language: answers.language as 'js' | 'ts',
-        projectPath: projectPath
-      });
-      
-      console.log('✅ Redux setup completed successfully!');
-    } catch (error) {
-      console.error('❌ Failed to set up Redux:');
-      console.error(error);
-      throw error; // Re-throw to stop the scaffolding process
-    }
+    };
+    fs.writeFileSync(jsConfigPath, JSON.stringify(jsConfig, null, 2));
+    console.log("✅ Updated jsconfig.json with proper configuration");
   }
 
   // 4. Set up Auth + Axios if needed

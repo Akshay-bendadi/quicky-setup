@@ -6,7 +6,7 @@ A powerful CLI tool to quickly scaffold and set up modern web applications with 
 
 - 🛠️ **Project Scaffolding**: Quickly set up new projects with a single command
 - ⚡ **Framework Support**: Works with React, Next.js, and more
-- 🔧 **Built-in Templates**: Pre-configured with TypeScript, Redux, and other essential tools
+- 🔧 **Built-in Templates**: Pre-configured with TypeScript and other essential tools
 - 🎨 **Theming**: Easy theming support out of the box
 - 📦 **Zero-Config**: Sensible defaults with zero configuration required
 - 🔄 **Update Management**: Keep your project dependencies up-to-date
@@ -62,7 +62,7 @@ my-app/
 ├── src/
 │   ├── components/     # Reusable components
 │   ├── pages/          # Application pages
-│   ├── store/          # State management
+│   ├── services/       # API services and utilities
 │   ├── styles/         # Global styles
 │   └── utils/          # Utility functions
 ├── public/            # Static files
@@ -76,9 +76,6 @@ my-app/
 Add features to your existing project:
 
 ```bash
-# Add Redux state management
-npx quicky-setup add redux
-
 # Add API service layer
 npx quicky-setup add api
 

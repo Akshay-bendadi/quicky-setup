@@ -10,7 +10,6 @@ export interface Answers {
   framework: Framework;
   routing: "app" | "pages";
   language: Language;
-  redux: boolean;
   auth: boolean;
   authStorage: AuthStorage;
   uiLibrary: UiLibrary;
@@ -51,12 +50,6 @@ export async function askQuestions(): Promise<Answers> {
         { title: "App Router (recommended)", value: "app" },
         { title: "Pages Router (classic)", value: "pages" },
       ],
-    },
-    {
-      type: "confirm",
-      name: "redux",
-      message: "Include Redux Toolkit?",
-      initial: true,
     },
     {
       type: "confirm",
