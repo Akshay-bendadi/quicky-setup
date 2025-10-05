@@ -92,5 +92,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# .gitignore
+node_modules
+dist
+
 # Optional
 .vercel_build_output
