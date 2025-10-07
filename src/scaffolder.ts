@@ -1,7 +1,19 @@
 import { execa } from "execa";
 import fs from "fs";
 import path from "path";
+import chalk from 'chalk';
 import type { Answers } from "./prompts.js";
+
+// Styled console messages
+const log = {
+  info: (message: string) => console.log(chalk.blue(`ℹ ${message}`)),
+  success: (message: string) => console.log(chalk.green(`✓ ${message}`)),
+  warning: (message: string) => console.log(chalk.yellow(`⚠ ${message}`)),
+  error: (message: string) => console.error(chalk.red(`✗ ${message}`)),
+  step: (message: string) => console.log(chalk.magenta(`→ ${message}`)),
+  highlight: (message: string) => console.log(chalk.hex('#FF6B6B')(message)),
+  divider: () => console.log(chalk.gray('─'.repeat(process.stdout.columns || 50)))
+};
 
 function createFolder(folder: string): void {
   if (!fs.existsSync(folder)) {
@@ -52,13 +64,17 @@ function createFolders(projectPath: string, framework: Answers["framework"]): vo
 }
 
 export async function scaffoldProject(answers: Answers): Promise<void> {
-  const projectPath = path.resolve(process.cwd(), answers.projectName);
+  // Ensure we're using the raw project name without any chalk formatting
+  const rawProjectName = answers.projectName.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
+  const projectPath = path.resolve(process.cwd(), rawProjectName);
 
   // Create only the project directory first
   createFolder(projectPath);
   process.chdir(projectPath);
 
-  console.log("🚀 Creating base project...");
+  log.divider();
+  log.step(chalk.bold.cyan('🚀 Creating your project...'));
+  log.divider();
 
   // 1. Initialize base project first
   if (answers.framework === "next") {
@@ -82,7 +98,8 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
     const dependencies = {
       "next": `^${nextVersion}`,
       "react": "^18.2.0",
-      "react-dom": "^18.2.0"
+      "react-dom": "^18.2.0",
+      "lucide-react": "^0.390.0"
     };
 
     args.push(answers.language === "ts" ? "--typescript" : "--js");
@@ -119,7 +136,6 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
         "autoprefixer": "^10.4.0",
         "eslint": "^8.0.0",
         "eslint-config-next": `^${nextVersion}`,
-        "postcss": "^8.0.0",
         "tailwindcss": "^3.4.0",
         "typescript": "^5.0.0"
       };
@@ -147,12 +163,12 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
 
     await execa("npm", ["install", "react-router-dom"], { stdio: "inherit" });
 
-    console.log("🎨 Installing Tailwind CSS...");
-    await execa("npm", ["install", "-D", "tailwindcss@latest", "postcss@latest", "autoprefixer@latest"], {
+    log.step('🎨 Installing Tailwind CSS...');
+    await execa("npm", ["install", "-D", "tailwindcss@latest", "autoprefixer@latest"], {
       stdio: "inherit"
     });
 
-    const tailwindConfigPath = path.join(projectPath, "tailwind.config.js");
+    const tailwindConfigPath = path.join(projectPath, `tailwind.config.${answers.language}`);
     const tailwindConfig = answers.language === "ts"
       ? "/** @type {import('tailwindcss').Config} */\nmodule.exports = {\n  content: [\n    \"./index.html\",\n    \"./src/**/*.{js,ts,jsx,tsx}\",\n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}"
       : "module.exports = {\n  content: [\n    \"./index.html\",\n    \"./src/**/*.{js,ts,jsx,tsx}\",\n  ],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}";
@@ -171,8 +187,12 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
     fs.writeFileSync(cssPath, "@import \"tailwindcss\";\n");
 
     // Install @tailwindcss/vite
-    console.log("🔧 Configuring Vite with @tailwindcss/vite...");
+    log.step('🔧 Configuring Vite with @tailwindcss/vite...');
     await execa("npm", ["install", "-D", "@tailwindcss/vite"], { stdio: "inherit" });
+
+    // Install lucide-react
+    log.step('✨ Installing lucide-react...');
+    await execa("npm", ["install", "lucide-react"], { stdio: "inherit" });
 
     // Update Vite config to use @tailwindcss/vite
     const viteConfigExt = answers.language === 'ts' ? 'ts' : 'js';
@@ -194,16 +214,23 @@ export default defineConfig({
       fs.writeFileSync(viteConfigPath, viteConfig);
     }
 
-    console.log("✅ Tailwind CSS installed and configured!");
+    console.log("✅ Tailwind CSS and lucide-react installed and configured!");
   }
 
 
-  console.log("✅ Base project created!");
+  log.divider();
+  log.highlight(chalk.bold.green('✨ Project created successfully! 🎉'));
+  log.divider();
+  log.info(chalk.bold('Next steps:'));
+  log.info(`1. ${chalk.cyan('cd ' + answers.projectName)}`);
+  log.info(`2. ${chalk.cyan('npm run dev')} to start the development server`);
+  log.info(`3. Happy coding! ${chalk.bold.red('❤️')}`);
+  log.divider();
 
   // 2. Now create our directory structure
   console.log("📂 Setting up project structure...");
   createFolders(projectPath, answers.framework);
-  console.log("✅ Directory structure created");
+
   // Setup environment files
   console.log("🔧 Setting up environment files...");
   try {
@@ -240,6 +267,11 @@ export default defineConfig({
     console.log("✅ Axios + Auth utils added!");
   }
 
+  // 5. Set up Theme
+  log.step('📦 Installing project dependencies...');
+  const { scaffoldTheme } = await import("./scaffolders/themeSetup.js");
+  scaffoldTheme(projectPath, answers.language, answers.routing, answers.framework);
+  console.log("✅ Theme added!");
   // UI Library
   if (answers.uiLibrary === "shadcn") {
     await execa(

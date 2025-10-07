@@ -1,6 +1,28 @@
 import prompts from "prompts";
+import chalk from 'chalk';
 
 export type Framework = "react" | "next";
+
+// Helper function to create styled messages
+const style = {
+  title: chalk.hex('#FF6B6B').bold,
+  subtitle: chalk.hex('#4ECDC4'),
+  success: chalk.green.bold,
+  info: chalk.blue,
+  warning: chalk.yellow,
+  error: chalk.red.bold,
+  highlight: chalk.hex('#FFD166').bold,
+  code: chalk.bgGray.italic
+};
+
+// Welcome message
+console.log(`
+${chalk.hex('#4ECDC4').bold('┌───────────────────────────────────────┐')}
+${chalk.hex('#4ECDC4').bold('│')}   ${chalk.hex('#FF6B6B').bold('🚀 Welcome to Quicky Setup!')}    ${chalk.hex('#4ECDC4').bold('│')}
+${chalk.hex('#4ECDC4').bold('│')}   ${chalk.hex('#4ECDC4')('The fastest way to set up your')}    ${chalk.hex('#4ECDC4').bold('│')}
+${chalk.hex('#4ECDC4').bold('│')}   ${chalk.hex('#4ECDC4')('React/Next.js project')} ${chalk.hex('#FF6B6B').bold('⚡')}           ${chalk.hex('#4ECDC4').bold('│')}
+${chalk.hex('#4ECDC4').bold('└───────────────────────────────────────┘')}
+`);
 export type Language = "js" | "ts";
 export type UiLibrary = "none" | "shadcn" | "antd";
 export type AuthStorage = "cookie" | "localStorage" | null;
@@ -20,13 +42,20 @@ export async function askQuestions(): Promise<Answers> {
     {
       type: "text",
       name: "projectName",
-      message: "Enter project name:",
+      message: style.highlight("✨ Project name:"),
       initial: "my-app",
+      format: (val: string) => style.highlight(val),
+      style: 'default',
+      onState: (state) => {
+        if (state.aborted) {
+          process.nextTick(() => process.exit(0));
+        }
+      }
     },
     {
       type: "select",
       name: "framework",
-      message: "Choose framework:",
+      message: style.highlight("🚀 Choose your framework:"),
       choices: [
         { title: "React (Vite)", value: "react" },
         { title: "Next.js", value: "next" },
@@ -35,7 +64,7 @@ export async function askQuestions(): Promise<Answers> {
     {
       type: "select",
       name: "language",
-      message: "Choose language:",
+      message: style.highlight("💻 Choose your language:"),
       choices: [
         { title: "JavaScript", value: "js" },
         { title: "TypeScript", value: "ts" },
@@ -45,7 +74,7 @@ export async function askQuestions(): Promise<Answers> {
       type: (prev: string, values: any) =>
         values.framework === "next" ? "select" : null,
       name: "routing",
-      message: "Choose Next.js routing system:",
+      message: style.highlight("🛣️  Choose Next.js routing system:"),
       choices: [
         { title: "App Router (recommended)", value: "app" },
         { title: "Pages Router (classic)", value: "pages" },
@@ -54,13 +83,13 @@ export async function askQuestions(): Promise<Answers> {
     {
       type: "confirm",
       name: "auth",
-      message: "Include Auth + Axios?",
+      message: style.highlight("🔒 Include Auth + Axios?"),
       initial: true,
     },
     {
       type: (prev: boolean) => (prev ? "select" : null),
       name: "authStorage",
-      message: "Auth storage type:",
+      message: style.highlight("📦 Choose auth storage type:"),
       choices: [
         { title: "Cookie", value: "cookie" },
         { title: "LocalStorage", value: "localStorage" },
@@ -69,7 +98,7 @@ export async function askQuestions(): Promise<Answers> {
     {
       type: "select",
       name: "uiLibrary",
-      message: "Choose UI library:",
+      message: style.highlight("🎨 Choose a UI library (or none for plain CSS):"),
       choices: [
         { title: "None", value: "none" },
         { title: "Shadcn UI", value: "shadcn" },
@@ -78,5 +107,6 @@ export async function askQuestions(): Promise<Answers> {
     },
   ]);
 
+  console.log(`\n${style.success('✓')} ${style.highlight('Configuration complete!')} Let's set up your project...\n`);
   return result as Answers;
 }

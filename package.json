@@ -1,6 +1,6 @@
 {
   "name": "quicky-setup",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Quickly set up a React/Next.js project with Tailwind, Redux, Axios, Auth, ESLint, and Theme Switch.",
   "bin": {
     "quicky-setup": "./dist/bin/quicky-setup.js"

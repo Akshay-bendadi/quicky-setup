@@ -906,11 +906,99 @@ class API_ENDPOINTS {
 }
 
 export default API_ENDPOINTS;
-`;;
+`;
+
+  // URL utility functions
+  const urlUtilsContent = language === 'ts' ? `/**
+ * Converts an object to a URL-encoded query string
+ * Handles nested objects and arrays
+ * @param params - The object to convert
+ * @param prefix - Used internally for recursion
+ * @returns A URL-encoded query string
+ */
+export function objectToQueryString(params: Record<string, any>, prefix: string = ''): string {
+  const queryParts: string[] = [];
+
+  for (const key in params) {
+    if (!Object.prototype.hasOwnProperty.call(params, key)) continue;
+    const value = params[key];
+    if (value === null || value === undefined) continue;
+
+    const paramKey = prefix ? \`\${prefix}[\${encodeURIComponent(key)}]\` : encodeURIComponent(key);
+
+    if (Array.isArray(value)) {
+      value.forEach((v: any) => queryParts.push(\`\${paramKey}=\${encodeURIComponent(v)}\`));
+    } else if (typeof value === 'object') {
+      queryParts.push(objectToQueryString(value, paramKey));
+    } else {
+      queryParts.push(\`\${paramKey}=\${encodeURIComponent(value)}\`);
+    }
+  }
+
+  return queryParts.join('&');
+}
+
+/**
+ * Appends query parameters to a URL
+ * @param url - The base URL
+ * @param params - The query parameters to append
+ * @returns The URL with the query parameters appended
+ */
+export function appendQueryParams(url: string, params: Record<string, any>): string {
+  if (!params || Object.keys(params).length === 0) return url;
+
+  const queryString = objectToQueryString(params);
+  const separator = url.includes('?') ? '&' : '?';
+
+  return \`\${url}\${queryString ? \`\${separator}\${queryString}\` : ''}\`;
+}` : `/**
+ * Converts an object to a URL-encoded query string
+ * Handles nested objects and arrays
+ * @param {Object} params - The object to convert
+ * @param {string} [prefix=''] - Used internally for recursion
+ * @returns {string} A URL-encoded query string
+ */
+export function objectToQueryString(params, prefix = '') {
+  const queryParts = [];
+
+  for (const key in params) {
+    if (!Object.prototype.hasOwnProperty.call(params, key)) continue;
+    const value = params[key];
+    if (value === null || value === undefined) continue;
+
+    const paramKey = prefix ? \`\${prefix}[\${encodeURIComponent(key)}]\` : encodeURIComponent(key);
+
+    if (Array.isArray(value)) {
+      value.forEach(v => queryParts.push(\`\${paramKey}=\${encodeURIComponent(v)}\`));
+    } else if (typeof value === 'object') {
+      queryParts.push(objectToQueryString(value, paramKey));
+    } else {
+      queryParts.push(\`\${paramKey}=\${encodeURIComponent(value)}\`);
+    }
+  }
+
+  return queryParts.join('&');
+}
+
+/**
+ * Appends query parameters to a URL
+ * @param {string} url - The base URL
+ * @param {Object} params - The query parameters to append
+ * @returns {string} The URL with the query parameters appended
+ */
+export function appendQueryParams(url, params) {
+  if (!params || Object.keys(params).length === 0) return url;
+
+  const queryString = objectToQueryString(params);
+  const separator = url.includes('?') ? '&' : '?';
+
+  return \`\${url}\${queryString ? \`\${separator}\${queryString}\` : ''}\`;
+}`;
 
   // Write utility files
   fs.writeFileSync(path.join(servicesDir, `Routes.${ext}`), routesContent);
   fs.writeFileSync(path.join(servicesDir, `apiEndpoints.${ext}`), apiEndpointsContent);
+  fs.writeFileSync(path.join(servicesDir, `url.${ext}`), urlUtilsContent);
 
  console.log("✅ Axios setup created!");
 }
