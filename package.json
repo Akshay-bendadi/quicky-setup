@@ -75,9 +75,6 @@
     "check": "npm run typecheck && npm run build && npm run template:verify"
   },
   "files": [
-    "dist/",
-    "CHANGELOG.md",
-    "docs/production-setup.md",
-    "SECURITY.md"
+    "dist/"
   ]
 }
