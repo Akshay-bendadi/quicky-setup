@@ -30,7 +30,7 @@ CLI scaffold for starting a React or Next.js app with a production-oriented Tail
 ## Install
 
 ```bash
-npx firstbase@latest
+npx @aksh_npm/firstbase@latest
 ```
 
 If you are developing this package locally:
@@ -46,7 +46,7 @@ npm run start
 Run the CLI and answer the prompts:
 
 ```bash
-npx firstbase
+npx @aksh_npm/firstbase
 ```
 
 The prompts let you choose:
