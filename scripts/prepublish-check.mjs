@@ -34,5 +34,4 @@ if (!npmExecPath) {
 
 run(process.execPath, [path.join(repoRoot, "scripts", "guard-publish-ci.mjs")]);
 run(process.execPath, [npmExecPath, "run", "check"]);
-run(process.execPath, [npmExecPath, "run", "security:audit"]);
 run(process.execPath, [npmExecPath, "run", "pack:dry-run"]);

@@ -1,6 +1,6 @@
 {
   "name": "firstbase",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A small CLI for scaffolding React or Next.js projects with a theme-first baseline.",
   "bin": {
     "firstbase": "dist/bin/firstbase.js"
