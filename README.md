@@ -9,13 +9,13 @@ Firstbase creates a new app from an interactive prompt and can add common projec
 Run it directly with `npx`:
 
 ```bash
-npx @aksh_npm/firstbase@latest
+npx firstbase@latest
 ```
 
 ## Usage
 
 ```bash
-npx @aksh_npm/firstbase
+npx firstbase
 ```
 
 The CLI asks for the project name and setup choices, then creates a new project folder.

@@ -1,5 +1,5 @@
 {
-  "name": "@aksh_npm/firstbase",
+  "name": "firstbase",
   "version": "0.0.1",
   "description": "A small CLI for scaffolding React or Next.js projects with a theme-first baseline.",
   "bin": {
