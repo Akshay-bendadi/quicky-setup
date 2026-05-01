@@ -1,8 +1,9 @@
 name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
@@ -47,7 +48,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Attach checksums to GitHub release
-        run: gh release upload "${{ github.event.release.tag_name }}" "${{ steps.pack.outputs.package_file }}" checksums.txt --clobber
+      - name: Create GitHub release
+        run: gh release create "${{ github.ref_name }}" "${{ steps.pack.outputs.package_file }}" checksums.txt --title "firstbase ${{ github.ref_name }}" --notes "Release ${{ github.ref_name }}" --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}
