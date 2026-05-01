@@ -27,6 +27,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate release tag
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "v${package_version}" ]; then
+            echo "::error title=Release tag mismatch::Tag ${GITHUB_REF_NAME} does not match package.json version ${package_version}."
+            exit 1
+          fi
+
       - name: Audit dependencies
         run: npm audit --audit-level=high
 
@@ -44,7 +52,28 @@ jobs:
           echo "package_file=$package_file" >> "$GITHUB_OUTPUT"
 
       - name: Publish to npm with provenance
-        run: npm publish "${{ steps.pack.outputs.package_file }}" --provenance --access public
+        shell: bash
+        run: |
+          npm whoami
+
+          set +e
+          npm publish "${{ steps.pack.outputs.package_file }}" --provenance --access public 2>&1 | tee npm-publish.log
+          publish_status="${PIPESTATUS[0]}"
+          set -e
+
+          if [ "${publish_status}" -ne 0 ]; then
+            {
+              echo "### npm publish failed"
+              echo
+              echo '```text'
+              tail -n 80 npm-publish.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            message="$(tail -n 20 npm-publish.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+            echo "::error title=npm publish failed::${message}"
+            exit "${publish_status}"
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
