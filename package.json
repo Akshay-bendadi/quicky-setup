@@ -1,8 +1,9 @@
 {
-  "name": "firstbase",
-  "version": "0.0.5",
+  "name": "create-firstbase-app",
+  "version": "0.0.6",
   "description": "A small CLI for scaffolding React or Next.js projects with a theme-first baseline.",
   "bin": {
+    "create-firstbase-app": "dist/bin/firstbase.js",
     "firstbase": "dist/bin/firstbase.js"
   },
   "type": "module",

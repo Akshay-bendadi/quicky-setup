@@ -9,13 +9,13 @@ Firstbase creates a new app from an interactive prompt and can add common projec
 Run it directly with `npx`:
 
 ```bash
-npx firstbase@latest
+npx create-firstbase-app@latest
 ```
 
 ## Usage
 
 ```bash
-npx firstbase
+npx create-firstbase-app
 ```
 
 The CLI asks for the project name and setup choices, then creates a new project folder.
