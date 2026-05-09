@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
+          node-version: 22.22.2
           registry-url: https://registry.npmjs.org
           cache: npm
 
@@ -28,10 +28,16 @@ jobs:
         run: npm ci
 
       - name: Validate release tag
+        shell: bash
         run: |
           package_version="$(node -p "require('./package.json').version")"
+          if [[ ! "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error title=Invalid release tag::Release tags must use semver format, for example v1.2.3."
+            exit 1
+          fi
+
           if [ "${GITHUB_REF_NAME}" != "v${package_version}" ]; then
-            echo "::error title=Release tag mismatch::Tag ${GITHUB_REF_NAME} does not match package.json version ${package_version}."
+            echo "::error title=Release tag mismatch::Release tag does not match package.json version."
             exit 1
           fi
 
@@ -78,6 +84,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub release
-        run: gh release create "${{ github.ref_name }}" "${{ steps.pack.outputs.package_file }}" checksums.txt --title "firstbase ${{ github.ref_name }}" --notes "Release ${{ github.ref_name }}" --verify-tag
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$PACKAGE_FILE" checksums.txt \
+            --title "firstbase $GITHUB_REF_NAME" \
+            --notes "Release $GITHUB_REF_NAME" \
+            --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}
+          PACKAGE_FILE: ${{ steps.pack.outputs.package_file }}

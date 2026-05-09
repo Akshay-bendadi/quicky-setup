@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
-      SOCKET_ORG: ${{ vars.SOCKET_ORG || 'quicky-setup' }}
+      SOCKET_ORG: ${{ vars.SOCKET_ORG }}
     steps:
       - name: Check Socket configuration
         id: socket-config
@@ -41,12 +41,12 @@ jobs:
         if: steps.socket-config.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
+          node-version: 22.22.2
           cache: npm
 
       - name: Install Socket CLI
         if: steps.socket-config.outputs.enabled == 'true'
-        run: npm install --global socket@1.1.85
+        run: npm install --global socket@1.1.92
 
       - name: Run Socket policy scan
         if: steps.socket-config.outputs.enabled == 'true'

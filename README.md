@@ -52,7 +52,7 @@ The compiled CLI entrypoint is written to `dist/bin/firstbase.js`.
 
 ## Requirements
 
-Firstbase requires Node.js `20.19.0` or newer.
+Firstbase requires Node.js `22.22.2` or newer.
 
 ## License
 

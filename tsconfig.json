@@ -15,9 +15,8 @@
     "types": ["node"],
     "declaration": false,
     "sourceMap": false,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*.ts", "bin/**/*.ts"],

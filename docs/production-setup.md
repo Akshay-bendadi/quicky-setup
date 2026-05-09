@@ -11,31 +11,31 @@ This document records what the CLI generates for production-oriented React and N
 - API: Axios client, environment helper, `.env.local`, and `.env.example`.
 - Quality: Prettier, import sorting, GitHub Actions CI, dependency audit, optional Socket policy scan, generated `.gitignore`, and optional Husky pre-commit hook.
 - Advanced modules: React Query, auth scaffold, validated forms, Sonner toasts, i18n language switcher, SEO metadata, and Vitest tests.
-- Node target: generated apps use `>=20.19.0` so both Next.js 16 and Vite 8 tooling are supported.
-- Node version files: generated apps include `.nvmrc` and `.node-version` pinned to `20.19.0`.
+- Node target: generated apps use `>=22.22.2` so both Next.js 16 and Vite 8 tooling are supported on the current Node 22 security line.
+- Node version files: generated apps include `.nvmrc` and `.node-version` pinned to `22.22.2`.
 
 ## Generated Package Versions
 
 | Package | Version | Used For |
 | --- | --- | --- |
-| create-next-app | 16.2.4 | Next.js bootstrap command |
-| create-vite | 9.0.5 | React + Vite bootstrap command |
-| next | 16.2.4 | Next.js generated apps |
-| vite | 8.0.9 | React generated apps |
+| create-next-app | 16.2.6 | Next.js bootstrap command |
+| create-vite | 9.0.6 | React + Vite bootstrap command |
+| next | 16.2.6 | Next.js generated apps |
+| vite | 8.0.11 | React generated apps |
 | @vitejs/plugin-react | 6.0.1 | React Fast Refresh for Vite |
-| react | 19.2.5 | UI runtime |
-| react-dom | 19.2.5 | DOM renderer |
-| eslint | 10.2.1 | Next.js linting through ESLint CLI |
-| eslint-config-next | 16.2.4 | Next.js ESLint rules |
+| react | 19.2.6 | UI runtime |
+| react-dom | 19.2.6 | DOM renderer |
+| eslint | 10.3.0 | Next.js linting through ESLint CLI |
+| eslint-config-next | 16.2.6 | Next.js ESLint rules |
 | @types/react | 19.2.14 | React TypeScript definitions |
 | @types/react-dom | 19.2.3 | React DOM TypeScript definitions |
-| @types/node | 22.19.17 | Node.js TypeScript definitions |
-| typescript | 5.9.3 | Generated TypeScript projects |
-| tailwindcss | 3.4.17 | Styling foundation |
-| postcss | 8.5.10 | Tailwind processing |
-| autoprefixer | 10.4.21 | CSS vendor prefixing |
-| axios | 1.15.0 | API client |
-| lucide-react | 1.8.0 | Icons |
+| @types/node | 22.19.18 | Node.js TypeScript definitions |
+| typescript | 6.0.3 | Generated TypeScript projects |
+| tailwindcss | 3.4.19 | Styling foundation |
+| postcss | 8.5.14 | Tailwind processing |
+| autoprefixer | 10.5.0 | CSS vendor prefixing |
+| axios | 1.16.0 | API client |
+| lucide-react | 1.14.0 | Icons |
 | prettier | 3.8.3 | Formatting |
 | @trivago/prettier-plugin-sort-imports | 6.0.2 | Import sorting |
 | husky | 9.1.7 | Optional pre-commit hook |
@@ -43,16 +43,16 @@ This document records what the CLI generates for production-oriented React and N
 | clsx | 2.1.1 | Class composition |
 | tailwind-merge | 3.5.0 | Tailwind class merging |
 | tailwindcss-animate | 1.0.7 | Animation utilities |
-| @tanstack/react-query | 5.99.0 | Advanced server-state setup |
-| react-hook-form | 7.72.1 | Advanced forms |
-| zod | 4.3.6 | Form validation |
+| @tanstack/react-query | 5.100.9 | Advanced server-state setup |
+| react-hook-form | 7.75.0 | Advanced forms |
+| zod | 4.4.3 | Form validation |
 | @hookform/resolvers | 5.2.2 | React Hook Form + Zod resolver |
 | sonner | 2.0.7 | Toast notifications |
-| vitest | 4.1.4 | Advanced test runner |
-| jsdom | 29.0.2 | DOM test environment |
+| vitest | 4.1.5 | Advanced test runner |
+| jsdom | 29.1.1 | DOM test environment |
 | @testing-library/react | 16.3.2 | Component tests |
 | @testing-library/jest-dom | 6.9.1 | DOM matchers |
-| socket | 1.1.85 | Optional Socket Security CI policy scan |
+| socket | 1.1.92 | Optional Socket Security CI policy scan |
 
 ## Generated Scripts
 
@@ -74,24 +74,26 @@ The CLI package itself pins direct dependencies exactly:
 | --- | --- | --- |
 | chalk | 5.6.2 | CLI terminal output |
 | prompts | 2.4.2 | Interactive prompt flow |
-| axios | 1.15.0 | Generated API client dependency |
-| lucide-react | 1.8.0 | Generated icon dependency |
+| axios | 1.16.0 | Generated API client dependency |
+| lucide-react | 1.14.0 | Generated icon dependency |
 | class-variance-authority | 0.7.1 | Generated shadcn-style variants |
 | clsx | 2.1.1 | Generated class composition |
 | tailwind-merge | 3.5.0 | Generated Tailwind class merging |
-| @tanstack/react-query | 5.99.0 | Generated React Query module |
-| react-hook-form | 7.72.1 | Generated forms module |
-| zod | 4.3.6 | Generated validation module |
+| @tanstack/react-query | 5.100.9 | Generated React Query module |
+| react-hook-form | 7.75.0 | Generated forms module |
+| zod | 4.4.3 | Generated validation module |
 | @hookform/resolvers | 5.2.2 | Generated form resolver |
 | sonner | 2.0.7 | Generated toast module |
-| typescript | 5.9.3 | CLI build and generated TypeScript apps |
-| @types/node | 22.19.17 | Node.js TypeScript definitions |
+| typescript | 6.0.3 | CLI build and generated TypeScript apps |
+| @types/node | 22.19.18 | Node.js TypeScript definitions |
 | @types/prompts | 2.4.9 | Prompt library TypeScript definitions |
 | prettier | 3.8.3 | Formatting |
+| react | 19.2.6 | Test peer dependency and generated React runtime pin |
+| react-dom | 19.2.6 | Test peer dependency and generated DOM renderer pin |
 | @trivago/prettier-plugin-sort-imports | 6.0.2 | Import sorting |
 | husky | 9.1.7 | Hook generation support |
-| vitest | 4.1.4 | Generated test runner |
-| jsdom | 29.0.2 | Generated DOM test environment |
+| vitest | 4.1.5 | Generated test runner |
+| jsdom | 29.1.1 | Generated DOM test environment |
 | @testing-library/react | 16.3.2 | Generated component tests |
 | @testing-library/jest-dom | 6.9.1 | Generated DOM matchers |
 | tailwindcss-animate | 1.0.7 | Generated animation utilities |
@@ -104,7 +106,7 @@ When Husky is selected, the generated app gets:
 - `.husky/pre-commit` running `npm run check`.
 - `git config core.hooksPath .husky` during scaffold creation.
 
-The generated GitHub Actions CI workflow uses Node `20.19.0`, installs with `npm ci`, runs `npm audit --audit-level=high`, and runs `npm run check`, so local hooks and CI use the same gate.
+The generated GitHub Actions CI workflow uses Node `22.22.2`, installs with `npm ci`, runs `npm audit --audit-level=high`, and runs `npm run check`, so local hooks and CI use the same gate.
 
 The generated Dependency Review workflow runs only on pull requests, so push CI does not include a skipped dependency-review step. It preflights GitHub dependency graph support and passes with a plain log message until the repository can run Dependency Review.
 
@@ -114,7 +116,7 @@ Next.js 16 uses Turbopack by default for `next dev` and `next build`, so no `--t
 
 The default Husky hook only runs local scripts. It does not make network requests and does not interpolate user input.
 
-The generated `socket.yml` workflow always runs a preflight job and skips cleanly when the Socket token is not configured. It requires the repository variable `SOCKET_ORG` to contain the Socket organization slug. The Socket CLI install is pinned to `socket@1.1.85`.
+The generated `socket.yml` workflow always runs a preflight job and skips cleanly when the Socket token is not configured. It requires the repository variable `SOCKET_ORG` to contain the Socket organization slug. The Socket CLI install is pinned to `socket@1.1.92`.
 
 ## shadcn/ui-Compatible Files
 
