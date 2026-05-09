@@ -213,7 +213,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SOCKET_SECURITY_API_KEY: \${{ secrets.SOCKET_SECURITY_API_KEY }}
-      SOCKET_ORG: \${{ vars.SOCKET_ORG }}
+      SOCKET_ORG: \${{ secrets.SOCKET_ORG || vars.SOCKET_ORG }}
     steps:
       - name: Check Socket configuration
         id: socket-config
@@ -226,8 +226,9 @@ jobs:
           fi
 
           if [ -z "$SOCKET_ORG" ]; then
-            echo "::error title=Socket org missing::Set the SOCKET_ORG repository variable to your Socket organization slug, for example quicky-setup."
-            exit 1
+            echo "::notice title=Socket skipped::SOCKET_ORG is not available to this workflow run."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
           echo "::add-mask::$SOCKET_SECURITY_API_KEY"
