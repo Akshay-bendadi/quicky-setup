@@ -52,9 +52,6 @@ jobs:
             jq -r '.[] | select((.change_type == "added" or .change_type == "changed") and ((.vulnerabilities // []) | length > 0)) | . as $dependency | $dependency.vulnerabilities[] | "- \($dependency.name)@\($dependency.version // "unknown") in \($dependency.manifest): \(.severity) \(.advisory_ghsa_id) - \(.advisory_summary)"' response.json
           } >> "$GITHUB_STEP_SUMMARY"
 
-          jq -r '.[] | select((.change_type == "added" or .change_type == "changed") and ((.vulnerabilities // []) | length > 0)) | . as $dependency | $dependency.vulnerabilities[] | "\($dependency.name)@\($dependency.version // "unknown") in \($dependency.manifest): \(.severity) \(.advisory_ghsa_id) - \(.advisory_summary)"' response.json |
-            while IFS= read -r finding; do
-              echo "::error title=Vulnerable dependency::$finding"
-            done
+          echo "::error title=Vulnerable dependency::One or more changed dependencies have known vulnerabilities. See the job summary for details."
 
           exit 1

@@ -118,7 +118,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
+          node-version: 22.22.2
           cache: npm
 
       - name: Install dependencies
@@ -187,17 +187,14 @@ jobs:
             jq -r '.[] | select((.change_type == "added" or .change_type == "changed") and ((.vulnerabilities // []) | length > 0)) | . as $dependency | $dependency.vulnerabilities[] | "- \\($dependency.name)@\\($dependency.version // "unknown") in \\($dependency.manifest): \\(.severity) \\(.advisory_ghsa_id) - \\(.advisory_summary)"' response.json
           } >> "$GITHUB_STEP_SUMMARY"
 
-          jq -r '.[] | select((.change_type == "added" or .change_type == "changed") and ((.vulnerabilities // []) | length > 0)) | . as $dependency | $dependency.vulnerabilities[] | "\\($dependency.name)@\\($dependency.version // "unknown") in \\($dependency.manifest): \\(.severity) \\(.advisory_ghsa_id) - \\(.advisory_summary)"' response.json |
-            while IFS= read -r finding; do
-              echo "::error title=Vulnerable dependency::$finding"
-            done
+          echo "::error title=Vulnerable dependency::One or more changed dependencies have known vulnerabilities. See the job summary for details."
 
           exit 1
 `;
 }
 
 function nodeVersionContent(): string {
-  return "20.19.0\n";
+  return "22.22.2\n";
 }
 
 function socketWorkflowContent(): string {
@@ -244,12 +241,12 @@ jobs:
         if: steps.socket-config.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.0
+          node-version: 22.22.2
           cache: npm
 
       - name: Install Socket CLI
         if: steps.socket-config.outputs.enabled == 'true'
-        run: npm install --global socket@1.1.85
+        run: npm install --global socket@1.1.92
 
       - name: Run Socket policy scan
         if: steps.socket-config.outputs.enabled == 'true'
@@ -298,8 +295,8 @@ function nextSecurityConfigContent(language: Language): string {
       "form-action 'self'",
       "frame-ancestors 'none'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self'",
+      "style-src 'self'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
       "connect-src 'self' https:",

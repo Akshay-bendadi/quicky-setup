@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import type { Readable } from "stream";
 import fs from "fs";
 import path from "path";
 import chalk from 'chalk';
@@ -84,6 +85,31 @@ function ensureEmptyTarget(projectPath: string, projectName: string): void {
   }
 }
 
+function appendBoundedOutput(current: string, next: string, maxLength = 12_000): string {
+  const combined = current + next;
+  return combined.length > maxLength ? combined.slice(combined.length - maxLength) : combined;
+}
+
+function printableCommand(command: string, args: string[]): string {
+  return [command, ...args].join(" ");
+}
+
+function attachOutputCapture(stream: Readable | null, onData: (chunk: string) => void): void {
+  stream?.setEncoding("utf8");
+  stream?.on("data", (chunk: string) => onData(chunk));
+}
+
+function printCapturedOutput(command: string, args: string[], output: string): void {
+  const trimmed = output.trim();
+
+  if (!trimmed) {
+    return;
+  }
+
+  console.error(chalk.red(`${statusIcon} ${printableCommand(command, args)} output:`));
+  console.error(trimmed);
+}
+
 async function runCommand(
   command: string,
   args: string[],
@@ -97,12 +123,22 @@ async function runCommand(
 ): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const timeoutMs = options.timeoutMs ?? 15 * 60 * 1000;
+    let capturedOutput = "";
     const child = spawn(command, args, {
       cwd: options.cwd,
       env: options.env,
-      stdio: options.stdio === "ignore" ? "ignore" : "inherit",
+      stdio: options.stdio === "ignore" ? ["ignore", "pipe", "pipe"] : "inherit",
       shell: false,
     });
+
+    if (options.stdio === "ignore") {
+      attachOutputCapture(child.stdout, (chunk) => {
+        capturedOutput = appendBoundedOutput(capturedOutput, chunk);
+      });
+      attachOutputCapture(child.stderr, (chunk) => {
+        capturedOutput = appendBoundedOutput(capturedOutput, chunk);
+      });
+    }
 
     const spinnerFrames = ["◐", "◓", "◑", "◒"];
     const loadingMessage = options.loadingMessage ?? `Running ${command}`;
@@ -130,6 +166,7 @@ async function runCommand(
           child.kill("SIGKILL");
         }
       }, 5_000);
+      printCapturedOutput(command, args, capturedOutput);
       reject(new Error(`${command} timed out after ${Math.round(timeoutMs / 1000)}s`));
     }, timeoutMs);
 
@@ -141,6 +178,7 @@ async function runCommand(
       settled = true;
       clearTimeout(timeout);
       clearInterval(spinner);
+      printCapturedOutput(command, args, capturedOutput);
       reject(error);
     });
     child.on("close", (code) => {
@@ -156,6 +194,7 @@ async function runCommand(
         resolve();
         return;
       }
+      printCapturedOutput(command, args, capturedOutput);
       reject(new Error(`${command} exited with code ${code ?? "unknown"}`));
     });
   });
@@ -166,18 +205,18 @@ function npmInstallArgs(packages: string[], dev = false): string[] {
 }
 
 const PACKAGE_VERSIONS = {
-  createNextApp: "16.2.4",
-  createVite: "9.0.5",
-  next: "16.2.4",
-  react: "19.2.5",
-  reactDom: "19.2.5",
-  vite: "8.0.9",
+  createNextApp: "16.2.6",
+  createVite: "9.0.6",
+  next: "16.2.6",
+  react: "19.2.6",
+  reactDom: "19.2.6",
+  vite: "8.0.11",
   viteReactPlugin: "6.0.1",
-  tailwindcss: "3.4.17",
-  postcss: "8.5.10",
-  autoprefixer: "10.4.21",
-  axios: "1.15.0",
-  lucideReact: "1.8.0",
+  tailwindcss: "3.4.19",
+  postcss: "8.5.14",
+  autoprefixer: "10.5.0",
+  axios: "1.16.0",
+  lucideReact: "1.14.0",
   classVarianceAuthority: "0.7.1",
   clsx: "2.1.1",
   tailwindMerge: "3.5.0",
@@ -185,21 +224,21 @@ const PACKAGE_VERSIONS = {
   husky: "9.1.7",
   prettier: "3.8.3",
   prettierSortImports: "6.0.2",
-  reactQuery: "5.99.0",
-  reactHookForm: "7.72.1",
-  zod: "4.3.6",
+  reactQuery: "5.100.9",
+  reactHookForm: "7.75.0",
+  zod: "4.4.3",
   hookformResolvers: "5.2.2",
   sonner: "2.0.7",
-  vitest: "4.1.4",
-  jsdom: "29.0.2",
+  vitest: "4.1.5",
+  jsdom: "29.1.1",
   testingLibraryReact: "16.3.2",
   testingLibraryJestDom: "6.9.1",
-  typescript: "5.9.3",
-  typesNode: "22.19.17",
+  typescript: "6.0.3",
+  typesNode: "22.19.18",
   typesReact: "19.2.14",
   typesReactDom: "19.2.3",
-  eslint: "10.2.1",
-  socketCli: "1.1.85",
+  eslint: "10.3.0",
+  socketCli: "1.1.92",
 } as const;
 
 function versionedPackage(packageName: string, version: string): string {
@@ -252,7 +291,6 @@ function updateAliasConfig(projectPath: string): void {
     : {};
   const compilerOptions = ((existing as { compilerOptions?: Record<string, unknown> }).compilerOptions ?? {}) as Record<string, unknown>;
 
-  compilerOptions.baseUrl = ".";
   compilerOptions.paths = {
     "@/*": ["./*", "./src/*"],
   };
@@ -303,7 +341,7 @@ function checkScriptFor(framework: Answers["framework"], includeTests: boolean):
 
 function nodeEngineFor(answers: Answers): string {
   void answers;
-  return ">=20.19.0";
+  return ">=22.22.2";
 }
 
 function formatDuration(totalMs: number): string {
@@ -1026,7 +1064,7 @@ export async function scaffoldProject(answers: Answers): Promise<void> {
     cwd: projectPath,
     loadingMessage: "Staging initial commit",
   });
-  await runCommand("git", ["commit", "--no-verify", "-m", "Initial commit (via firstbase)"], {
+  await runCommand("git", ["commit", "-m", "Initial commit (via firstbase)"], {
     stdio: "ignore",
     cwd: projectPath,
     loadingMessage: "Creating initial commit",
